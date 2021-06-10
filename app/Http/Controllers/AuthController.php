@@ -11,23 +11,6 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        /*$validated =  $request->validate([
-            'login'=> 'required|string|unique:users,login',
-            'password'=> 'required|confirmed|min:4',
-            'full_name'=> 'required|string',
-            'email'=> 'required|email|unique:users,email',
-            'image' => 'required|string'
-        ]);
-
-        $validated['password'] = Hash::make($validated['password']);
-
-        $user = User::create($validated);
-
-        return response([
-            'message' => 'User registered. Please log in',
-            'user' => $user
-        ]);
-*/
         $user = User::create([
             'login' => $request->input('login'),
             'password' => Hash::make($request->input('password')),
@@ -35,7 +18,10 @@ class AuthController extends Controller
             'email' => $request->input('email'),
             'image' => 'image_path'
         ]);
-        return $user;
+        return response([
+            'message' => 'Registered',
+            'user' => $user
+        ]);
     }
 
     public function login()
@@ -44,22 +30,19 @@ class AuthController extends Controller
 
         $token = JWTAuth::attempt($credentials);
 
-        if ($token = JWTAuth::attempt($credentials)) {
-            return response([
-                'message' => 'Logged in',
-                'token' => $token,
-                'user' => JWTAuth::user()
-            ]);
-        } else {
-            return response([
-                'message' => 'Incorrect log in!'
-                ], 400);
-        }
+        return response([
+            'message' => 'Logged in',
+            'token' => $token
+        ]);
     }
 
     public function logout()
     {
-        //
+        JWTAuth::invalidate(JWTAuth::getToken());
+
+        return response([
+            'message' => 'Logged out'
+        ]);
     }
 
     public function reset_password()

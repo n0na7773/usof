@@ -38,8 +38,8 @@ Route::resource('users', 'App\Http\Controllers\UserController');
 Route::prefix('auth')->group(function() {
     Route::post('/register', 'App\Http\Controllers\AuthController@register');
     Route::post('/login', 'App\Http\Controllers\AuthController@login');
-    /*Route::post('/logout', 'App\Http\Controllers\AuthController@logout');
-    Route::post('/password-reset', 'App\Http\Controllers\AuthController@reset_password');
+    Route::post('/logout', 'App\Http\Controllers\AuthController@logout');
+    /*Route::post('/password-reset', 'App\Http\Controllers\AuthController@reset_password');
     Route::post('/password-reset/{token}', 'App\Http\Controllers\AuthController@confirm_token');*/
 });
 
