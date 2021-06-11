@@ -18,9 +18,8 @@ class CreatePostsTable extends Migration
 
             $table->unsignedBigInteger('user_id');
             $table->string('title');
-            $table->enum('status', ['active', 'inactive'])->default('inactive');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->string('content');
-            $table->string('categories');
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
 
             $table->timestamps();

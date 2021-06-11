@@ -29,7 +29,10 @@ class AuthController extends Controller
         $credentials = request()->only(['login', 'password']);
 
         $token = JWTAuth::attempt($credentials);
-
+        $remember_token = explode(".", $token)[2];
+        $user = JWTAuth::user();
+        $user->remember_token = $remember_token;
+        $user->save();
         return response([
             'message' => 'Logged in',
             'token' => $token
@@ -38,11 +41,20 @@ class AuthController extends Controller
 
     public function logout()
     {
-        JWTAuth::invalidate(JWTAuth::getToken());
+        $user = JWTAuth::user();
 
+        if($user) {
+            JWTAuth::invalidate(JWTAuth::getToken());
+            $user->remember_token = "";
+            $user->save();
+            return response([
+                'message' => 'Logged out'
+            ]);
+        }
         return response([
-            'message' => 'Logged out'
+            'message' => 'Not logged out'
         ]);
+
     }
 
     public function reset_password()

@@ -9,34 +9,45 @@ class PostController extends Controller
 {
     public function index()
     {
-        // get all users
         return Post::all();
     }
 
     public function store(Request $request)
     {
-        // create a user
-        return Post::create($request->all());
+        if(!$this->isLogged($request)){
+            return response([
+                'message' => 'You have no auth'
+            ], 401);
+        }
+
+        $user_id = $this->getUser($request)->id;
+
+        $post = new Post;
+        $post->title = $request['title'];
+        $post->content = $request['content'];
+        $post->user()->associate($user_id);
+        $post->save();
+        $post->category()->attach($request['categories']);
+        return $post;
     }
 
 
     public function show($id)
     {
-        // show a user
-        return Post::find($id);
+        $post = Post::find($id);
+        $post->categories = \DB::table('category_post')->where('category_id', $id)->value("category_id");
+        return $post;
     }
 
     public function update(Request $request, $id)
     {
-        // update a user
-        $user = Post::find($id);
-        $user->update($request->all());
-        return $user;
+        $post = Post::find($id);
+        $post->update($request->all());
+        return $post;
     }
 
     public function destroy($id)
     {
-        // delete a user
         return Post::destroy($id);
     }
 }
