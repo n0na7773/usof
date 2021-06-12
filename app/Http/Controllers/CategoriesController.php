@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\Post;
 
 class CategoriesController extends Controller
 {
@@ -37,5 +38,19 @@ class CategoriesController extends Controller
     {
         //
         return Category::destroy($id);
+    }
+    public function get_category_posts($id)
+    {
+        //
+        $post_ids = \DB::table('category_post')->where('category_id', $id)->pluck('post_id');
+
+        $posts = [];
+        foreach($post_ids as $post_id){
+            $post = Post::find($post_id);
+            $post->categories = \DB::table('category_post')->where('post_id', $post_id)->pluck("category_id");
+            array_push($posts, $post);
+        }
+
+        return $posts;
     }
 }
