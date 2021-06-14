@@ -16,7 +16,11 @@ class CategoriesController extends Controller
 
     public function store(Request $request)
     {
-        //
+        if(!$this->isLogged($request)){
+            return response([
+                'message' => 'You have no auth'
+            ], 401);
+        }
         return Category::create($request->all());
     }
 
@@ -29,14 +33,33 @@ class CategoriesController extends Controller
     public function update(Request $request, $id)
     {
         //
+        if(!$this->isLogged($request)){
+            return response([
+                'message' => 'You have no auth'
+            ], 401);
+        }
+        if(!$this->isAdmin($request)){
+            return response([
+                'message' => 'You have no rights'
+            ], 401);
+        }
         $category = Category::find($id);
         $category->update($request->all());
         return $category;
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        if(!$this->isLogged($request)){
+            return response([
+                'message' => 'You have no auth'
+            ], 401);
+        }
+        if(!$this->isAdmin($request)){
+            return response([
+                'message' => 'You have no rights'
+            ], 401);
+        }
         return Category::destroy($id);
     }
     public function get_category_posts($id)

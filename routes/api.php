@@ -37,15 +37,14 @@ Route::prefix('auth')->group(function() {
     Route::post('/register', 'App\Http\Controllers\AuthController@register');
     Route::post('/login', 'App\Http\Controllers\AuthController@login');
     Route::post('/logout', 'App\Http\Controllers\AuthController@logout');
-    //Route::post('/password-reset', 'App\Http\Controllers\AuthController@reset_password');
-    //Route::post('/password-reset/{token}', 'App\Http\Controllers\AuthController@confirm_token');
+    Route::post('/password-reset', 'App\Http\Controllers\AuthController@reset_password');
+    Route::post('/password-reset/{token}', 'App\Http\Controllers\AuthController@confirm_token');
 });
 
 
+Route::post('/users/avatar', 'App\Http\Controllers\UserController@upload_avatar');
 
 Route::resource('users', 'App\Http\Controllers\UserController');
-
-//Route::patch('/users/avatar', 'App\Http\Controllers\UserController@upload_avatar');
 
 Route::resource('posts', 'App\Http\Controllers\PostController');
 
