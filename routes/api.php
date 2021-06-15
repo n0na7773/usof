@@ -43,6 +43,8 @@ Route::prefix('auth')->group(function() {
 
 
 Route::post('/users/avatar', 'App\Http\Controllers\UserController@upload_avatar');
+Route::get('/users/subscription', 'App\Http\Controllers\SubscriptionController@get_user_subscriptions');
+Route::get('/users/favorite', 'App\Http\Controllers\FavoriteController@get_user_favorites');
 
 Route::resource('users', 'App\Http\Controllers\UserController');
 
@@ -55,6 +57,12 @@ Route::prefix('posts')->group(function() {
     Route::post('/{post_id}/comments', 'App\Http\Controllers\PostController@post_comment');
     Route::post('/{post_id}/like', 'App\Http\Controllers\PostController@post_post_like');
     Route::delete('/{post_id}/like', 'App\Http\Controllers\PostController@delete_post_like');
+
+    Route::post('/{post_id}/subscription', 'App\Http\Controllers\SubscriptionController@post_user_subscription');
+    Route::delete('/{post_id}/subscription', 'App\Http\Controllers\SubscriptionController@delete_user_subscription');
+
+    Route::post('/{post_id}/favorite', 'App\Http\Controllers\FavoriteController@post_user_favorite');
+    Route::delete('/{post_id}/favorite', 'App\Http\Controllers\FavoriteController@delete_user_favorite');
 });
 
 Route::resource('categories', 'App\Http\Controllers\CategoriesController');
