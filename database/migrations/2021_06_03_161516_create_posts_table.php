@@ -21,6 +21,7 @@ class CreatePostsTable extends Migration
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->string('content');
             $table->integer('rating')->default(0);
+            $table->boolean('locked')->default(false);
             $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
 
             $table->timestamps();
