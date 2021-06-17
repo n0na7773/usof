@@ -16,32 +16,32 @@ class CategorySeeder extends Seeder
     public function run()
     {
         \DB::table('categories')->insert([
-            'title' => "html",
-            'description' => Str::random(10),
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-        ]);
-        \DB::table('categories')->insert([
-            'title' => "css",
-            'description' => Str::random(10),
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-        ]);
-        \DB::table('categories')->insert([
-            'title' => "js",
-            'description' => Str::random(10),
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-        ]);
-        \DB::table('categories')->insert([
-            'title' => "json",
-            'description' => Str::random(10),
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-        ]);
-        \DB::table('categories')->insert([
             'title' => "php",
-            'description' => Str::random(10),
+            'description' => "Something about php",
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+        \DB::table('categories')->insert([
+            'title' => "python",
+            'description' => "Something about python",
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+        \DB::table('categories')->insert([
+            'title' => "c++",
+            'description' => "Something about c++",
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+        \DB::table('categories')->insert([
+            'title' => "c#",
+            'description' => "Something about c#",
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+        \DB::table('categories')->insert([
+            'title' => "lua",
+            'description' => "Something about lua",
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);

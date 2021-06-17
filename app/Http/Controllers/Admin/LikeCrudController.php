@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\LikeRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use App\Models\Like;
+use App\Models\Post;
+use App\Models\Comment;
+use App\Models\User;
 
 /**
  * Class LikeCrudController
@@ -19,11 +23,6 @@ class LikeCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
 
-    /**
-     * Configure the CrudPanel object. Apply settings to all operations.
-     * 
-     * @return void
-     */
     public function setup()
     {
         CRUD::setModel(\App\Models\Like::class);
@@ -31,50 +30,140 @@ class LikeCrudController extends CrudController
         CRUD::setEntityNameStrings('like', 'likes');
     }
 
-    /**
-     * Define what happens when the List operation is loaded.
-     * 
-     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
-     * @return void
-     */
     protected function setupListOperation()
     {
-        CRUD::column('type');
+        CRUD::removeButton('delete');
+        CRUD::removeButton('update');
 
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
-         */
+        CRUD::column('id');
+        CRUD::column('user_id');
     }
 
-    /**
-     * Define what happens when the Create operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-create
-     * @return void
-     */
+    protected function setupShowOperation()
+    {
+        CRUD::removeButton('delete');
+        CRUD::removeButton('update');
+
+        CRUD::column('id');
+        CRUD::column('post_id');
+        CRUD::addColumn([
+            'name' => 'comment_id',
+            'label' => 'Comment id',
+            'type' => 'integer'
+        ]);
+        CRUD::column('user_id');
+        CRUD::column('type');
+    }
+
     protected function setupCreateOperation()
     {
         CRUD::setValidation(LikeRequest::class);
 
-        CRUD::field('type');
+        CRUD::removeButton('delete');
+        CRUD::removeButton('update');
 
-        /**
-         * Fields can be defined using the fluent syntax or array syntax:
-         * - CRUD::field('price')->type('number');
-         * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
-         */
+        CRUD::field('type');
+        CRUD::modifyField('type', [
+            'type' => 'enum',
+        ]);
+        CRUD::addField([
+            'name' => 'post_id',
+            'label' => 'Post id',
+            'type' => 'text'
+        ]);
+        CRUD::addField([
+            'name' => 'comment_id',
+            'label' => 'Comment id',
+            'type' => 'text'
+        ]);
+
     }
 
-    /**
-     * Define what happens when the Update operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-update
-     * @return void
-     */
     protected function setupUpdateOperation()
     {
-        $this->setupCreateOperation();
+        CRUD::removeButton('delete');
+        CRUD::removeButton('update');
     }
+
+    public function store()
+    {
+
+        $isPost = true;
+        if (!request()->post_id)
+            $isPost = false;
+
+        $author_id = backpack_user()->id;
+
+        if ($isPost) $post = Post::find(request()->post_id);
+        else $comment = Comment::find(request()->comment_id);
+
+        if ($isPost) $user_id = \DB::table('posts')->where('id', $post->id)->value("user_id");
+        else $user_id = \DB::table('comments')->where('id', $comment->id)->value("user_id");
+        $user = User::find($user_id);
+
+        if ($isPost) $liked = \DB::table('likes')->where('post_id', $post->id)->where('user_id', $author_id)->get();
+        else $liked = \DB::table('likes')->where('comment_id', $comment->id)->where('user_id', $author_id)->get();
+        if($liked != "[]") $exist_like = Like::find($liked[0]->id);
+
+        $like = new Like;
+        $like->type = request()->type;
+
+        if($liked == "[]") {
+            $like->user()->associate($author_id);
+            if ($isPost) $like->post()->associate($post->id);
+            else $like->comment()->associate($comment->id);
+            $like->save();
+            if ($like->type == 'like') {
+                if ($isPost) $post->rating += 1;
+                else $comment->rating += 1;
+                $user->rating += 1;
+            }
+            else {
+                if ($isPost) $post->rating -= 1;
+                else $comment->rating -= 1;
+                $user->rating -= 1;
+            }
+        }
+        else if ($exist_like->type == "like"){
+            if ($like->type == 'like') {
+                if ($isPost) $post->rating -= 1;
+                else $comment->rating -= 1;
+                $user->rating -= 1;
+                if ($isPost) \DB::table('likes')->where('post_id', $post->id)->where('user_id', $author_id)->delete();
+                else \DB::table('likes')->where('comment_id', $comment->id)->where('user_id', $author_id)->delete();
+            }
+            else {
+                if ($isPost) $post->rating -= 2;
+                else $comment->rating -= 2;
+                $user->rating -= 2;
+                $exist_like->type = 'dislike';
+                $exist_like->save();
+            }
+        }
+        else {
+            if ($like->type == 'like') {
+                if ($isPost) $post->rating += 2;
+                else $comment->rating += 2;
+                $user->rating += 2;
+                $exist_like->type = 'like';
+                $exist_like->save();
+            }
+            else {
+                if ($isPost) $post->rating += 1;
+                else $comment->rating += 1;
+                $user->rating += 1;
+                if ($isPost)\DB::table('likes')->where('post_id', $post->id)->where('user_id', $author_id)->delete();
+                else \DB::table('likes')->where('comment_id', $comment->id)->where('user_id', $author_id)->delete();
+            }
+        }
+
+        if ($isPost) $post->save();
+        else $comment->save();
+        $user->save();
+
+        return $msg;
+        return redirect('/admin/like/');
+    }
+
+
 }

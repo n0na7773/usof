@@ -17,42 +17,44 @@ class PostSeeder extends Seeder
     {
         \DB::table('posts')->insert([
             'user_id' => 1,
-            'title' => Str::random(10),
+            'title' => "How to exit vim?",
             'rating' => 1,
-            'content' => Str::random(10),
+            'content' => "Please help me to exit vim! I tried everthing...",
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
         \DB::table('posts')->insert([
             'user_id' => 1,
-            'title' => Str::random(10),
+            'title' => "Tips how to deploy a project",
             'rating' => 2,
-            'content' => Str::random(10),
+            'content' => "Please give me some tips because I am going to type there anything I want to fill it up",
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
         \DB::table('posts')->insert([
             'user_id' => 2,
-            'title' => Str::random(10),
+            'title' => "Morgenshtern",
             'rating' => -1,
-            'content' => Str::random(10),
+            'status' => 'inactive',
+            'content' => "Pull up in the tank i ya edu v boy",
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
         \DB::table('posts')->insert([
             'user_id' => 3,
-            'title' => Str::random(10),
+            'title' => "Blah blah blah",
             'rating' => 0,
             'status' => 'inactive',
-            'content' => Str::random(10),
+            'content' => "Blah blah blah blah blah blah blah blah blah blah blah blah. Blah blah blah.",
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
         \DB::table('posts')->insert([
             'user_id' => 4,
-            'title' => Str::random(10),
+            'title' => "Lorem Ipsum",
             'rating' => 0,
-            'content' => Str::random(10),
+            'status' => 'inactive',
+            'content' => "Lorem ipsum de cuatora in ceprimo lorem dino mi sentio labudeno.",
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);

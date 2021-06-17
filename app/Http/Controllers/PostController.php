@@ -188,24 +188,22 @@ class PostController extends Controller
             ], 401);
         }
         $post = Post::find($id);
-        if(!$this->isAdmin($request) && $this->getUser($request)->id != $post->user_id){
-            return response([
-                'message' => 'You have no rights'
-            ], 401);
-        }
 
-        $user = $this->getUser($request);
-        $user_id = $user->id;
+        $author = $this->getUser($request);
+        $author_id = $author->id;
+
+        $user_id = \DB::table('posts')->where('id', $post->id)->value("user_id");
+        $user = User::find($user_id);
 
         $post = Post::find($id);
-        $liked = \DB::table('likes')->where('post_id', $id)->get();
+        $liked = \DB::table('likes')->where('post_id', $id)->where('user_id', $author_id)->get();
         if($liked != "[]") $exist_like = Like::find($liked[0]->id);
 
         $like = new Like;
         $like->type = $request['type'];
 
         if($liked == "[]") {
-            $like->user()->associate($user_id);
+            $like->user()->associate($author_id);
             $like->post()->associate($post->id);
             $like->save();
             if ($like->type == 'like') {
@@ -250,6 +248,7 @@ class PostController extends Controller
         }
 
         $post->save();
+        $author->save();
         $user->save();
 
         return response([

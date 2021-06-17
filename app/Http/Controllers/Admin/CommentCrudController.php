@@ -5,12 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\CommentRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use App\Models\Comment;
 
-/**
- * Class CommentCrudController
- * @package App\Http\Controllers\Admin
- * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
- */
 class CommentCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
@@ -18,12 +14,8 @@ class CommentCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation { update as traitUpdate; }
 
-    /**
-     * Configure the CrudPanel object. Apply settings to all operations.
-     * 
-     * @return void
-     */
     public function setup()
     {
         CRUD::setModel(\App\Models\Comment::class);
@@ -31,52 +23,56 @@ class CommentCrudController extends CrudController
         CRUD::setEntityNameStrings('comment', 'comments');
     }
 
-    /**
-     * Define what happens when the List operation is loaded.
-     * 
-     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
-     * @return void
-     */
     protected function setupListOperation()
     {
+        CRUD::column('id');
+        CRUD::column('user_id');
+        CRUD::column('post_id');
         CRUD::column('content');
-        CRUD::column('status');
-
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
-         */
     }
 
-    /**
-     * Define what happens when the Create operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-create
-     * @return void
-     */
+    protected function setupShowOperation() {
+        $comment = CRUD::getCurrentEntry();
+        $plus = \DB::table("likes")->where("comment_id", $comment->id)->where("type", 'like')->count();
+        $minus = \DB::table("likes")->where("comment_id", $comment->id)->where("type", 'dislike')->count();
+        $comment->likes = $plus - $minus;
+        CRUD::column('id');
+        CRUD::addColumn([
+            'name' => 'user_id',
+            'label' => 'Author id',
+            'type' => 'text'
+        ]);
+        CRUD::column('user');
+        CRUD::column('post_id');
+        CRUD::column('content');
+        CRUD::column('status');
+        CRUD::column('likes');
+        CRUD::modifyColumn('likes', [
+            'label' => 'Rating',
+            'type' => 'integer',
+            'name' => 'likes',
+        ]);
+        CRUD::column('created_at');
+    }
+
     protected function setupCreateOperation()
     {
         CRUD::setValidation(CommentRequest::class);
 
+        CRUD::field('user_id');
+        CRUD::field('post_id');
         CRUD::field('content');
         CRUD::field('status');
-
-        /**
-         * Fields can be defined using the fluent syntax or array syntax:
-         * - CRUD::field('price')->type('number');
-         * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
-         */
+        CRUD::modifyField('status', [
+            'type' => 'enum',
+        ]);
     }
 
-    /**
-     * Define what happens when the Update operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-update
-     * @return void
-     */
     protected function setupUpdateOperation()
     {
-        $this->setupCreateOperation();
+        CRUD::field('status');
+        CRUD::modifyField('status', [
+            'type' => 'enum',
+        ]);
     }
 }

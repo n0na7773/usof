@@ -78,23 +78,21 @@ class CommentsController extends Controller
         }
 
         $comment = Comment::find($id);
-        if(!$this->isAdmin($request) && $this->getUser($request)->id != $comment->user_id){
-            return response([
-                'message' => 'You have no rights'
-            ], 401);
-        }
 
-        $user = $this->getUser($request);
-        $user_id = $user->id;
+        $author = $this->getUser($request);
+        $author_id = $author->id;
 
-        $liked = \DB::table('likes')->where('comment_id', $id)->get();
+        $user_id = \DB::table('comments')->where('id', $comment->id)->value("user_id");
+        $user = User::find($user_id);
+
+        $liked = \DB::table('likes')->where('comment_id', $id)->where('user_id', $author_id)->get();
         if($liked != "[]") $exist_like = Like::find($liked[0]->id);
 
         $like = new Like;
         $like->type = $request['type'];
 
         if($liked == "[]") {
-            $like->user()->associate($user_id);
+            $like->user()->associate($author_id);
             $like->comment()->associate($comment->id);
             $like->save();
             if ($like->type == 'like') {
@@ -139,6 +137,7 @@ class CommentsController extends Controller
         }
 
         $comment->save();
+        $author->save();
         $user->save();
 
         return response([

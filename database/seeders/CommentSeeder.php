@@ -18,7 +18,7 @@ class CommentSeeder extends Seeder
         \DB::table('comments')->insert([
             'user_id' => 1,
             'post_id' => 2,
-            'content' => Str::random(10),
+            'content' => "Just google it",
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
@@ -26,7 +26,7 @@ class CommentSeeder extends Seeder
             'user_id' => 2,
             'post_id' => 1,
             'rating' => 1,
-            'content' => Str::random(10),
+            'content' => "hahahaha",
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
@@ -34,21 +34,21 @@ class CommentSeeder extends Seeder
             'user_id' => 3,
             'post_id' => 1,
             'rating' => -1,
-            'content' => Str::random(10),
+            'content' => "stupid post",
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
         \DB::table('comments')->insert([
             'user_id' => 1,
             'post_id' => 2,
-            'content' => Str::random(10),
+            'content' => "same dude",
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
         \DB::table('comments')->insert([
             'user_id' => 1,
             'post_id' => 3,
-            'content' => Str::random(10),
+            'content' => "i don't know but I think someone can help you",
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);

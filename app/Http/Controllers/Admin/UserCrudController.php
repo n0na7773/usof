@@ -5,12 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\UserRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
-/**
- * Class UserCrudController
- * @package App\Http\Controllers\Admin
- * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
- */
 class UserCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
@@ -18,12 +15,8 @@ class UserCrudController extends CrudController
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation { update as traitUpdate; }
 
-    /**
-     * Configure the CrudPanel object. Apply settings to all operations.
-     * 
-     * @return void
-     */
     public function setup()
     {
         CRUD::setModel(\App\Models\User::class);
@@ -31,58 +24,93 @@ class UserCrudController extends CrudController
         CRUD::setEntityNameStrings('user', 'users');
     }
 
-    /**
-     * Define what happens when the List operation is loaded.
-     * 
-     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
-     * @return void
-     */
     protected function setupListOperation()
     {
+        CRUD::column('id');
         CRUD::column('login');
-        CRUD::column('password');
         CRUD::column('full_name');
         CRUD::column('email');
-        CRUD::column('image');
-
-        /**
-         * Columns can be defined using the fluent syntax or array syntax:
-         * - CRUD::column('price')->type('number');
-         * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
-         */
     }
 
-    /**
-     * Define what happens when the Create operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-create
-     * @return void
-     */
+    protected function setupShowOperation() {
+        $user = CRUD::getCurrentEntry();
+
+        $fav_ids =\DB::table("favorites")->where("user_id", $user->id)->pluck("post_id");
+        $favs = [];
+        foreach($fav_ids as $fav_id){
+            $fav = \DB::table("posts")->where("id", $fav_id)->pluck("title");
+            array_push($favs, $fav[0]);
+        }
+        $user->favs = $favs;
+
+        CRUD::column('id');
+        CRUD::column('login');
+        CRUD::column('full_name');
+        CRUD::column('email');
+        CRUD::column('rating');
+        CRUD::column('role');
+        CRUD::addColumn([
+            'name' => 'image',
+            'label' => 'Image',
+            'type' => 'image',
+            'width' => '200px',
+            'height' => '200px'
+        ]);
+        CRUD::column('favs');
+        CRUD::modifyColumn('favs', [
+            'name' => 'favs',
+            'label' => 'Favorites',
+            'type' => 'array',
+        ]);
+    }
+
     protected function setupCreateOperation()
     {
         CRUD::setValidation(UserRequest::class);
 
         CRUD::field('login');
         CRUD::field('password');
-        CRUD::field('full_name');
+        CRUD::field('password_confirmation');
         CRUD::field('email');
-        CRUD::field('image');
-
-        /**
-         * Fields can be defined using the fluent syntax or array syntax:
-         * - CRUD::field('price')->type('number');
-         * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
-         */
+        CRUD::field('role');
+        CRUD::modifyField('role', [
+            'type' => 'enum',
+        ]);
     }
 
-    /**
-     * Define what happens when the Update operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-update
-     * @return void
-     */
     protected function setupUpdateOperation()
     {
-        $this->setupCreateOperation();
+        CRUD::field('full_name');
+        //CRUD::field('password');
+        //CRUD::field('password_confirmation');
+        CRUD::field('role');
+        CRUD::modifyField('role', [
+            'type' => 'enum',
+        ]);
+    }
+
+    public function store()
+    {
+        $request = request()->all();
+        $request['password'] = Hash::make($request['password']);
+
+        $user = User::create($request);
+
+        return redirect('/admin/user/');
+    }
+
+    public function update()
+    {
+        request()->validate([
+            'full_name'=> 'string',
+            //'password'=> 'required|confirmed|min:4',
+            //'password_confirmation'=> 'required',
+            'role' => 'in:admin,user'
+        ]);
+
+        $user = CRUD::getCurrentEntry();
+        $response = $this->traitUpdate();
+        $user->update(request()->all());;
+        return $response;
     }
 }

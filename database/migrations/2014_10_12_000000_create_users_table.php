@@ -17,10 +17,10 @@ class CreateUsersTable extends Migration
             $table->id();
 
             $table->string('login')->unique();
+            $table->string('full_name')->default('Anonymous User');
             $table->string('password');
-            $table->string('full_name');
             $table->string('email')->unique();
-            $table->string('image')->default('default.png');
+            $table->string('image')->default('/avatars/default.png');
             $table->integer('rating')->default(0);
             $table->enum('role', ['user', 'admin'])->default('user');
 

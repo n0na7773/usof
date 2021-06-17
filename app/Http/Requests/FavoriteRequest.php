@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
 
-class LikeRequest extends FormRequest
+class FavoriteRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,9 +26,8 @@ class LikeRequest extends FormRequest
     public function rules()
     {
         return [
-            'post_id' => 'required_without:comment_id',
-            'comment_id' => 'required_without:post_id',
-            'type' => 'in:like,dislike'
+            'user_id' => 'required|integer',
+            'post_id' => 'required|integer'
         ];
     }
 
